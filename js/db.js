@@ -1,4 +1,4 @@
-import { db, doc, setDoc, collection, getDocs, deleteDoc, addDoc } from "./firebase.js";
+import { db, doc, setDoc, collection, getDocs, deleteDoc, addDoc, query, where } from "./firebase.js";
 
 //従業員情報を取得
 export const loadEmployeeList = async () => {
@@ -106,7 +106,7 @@ export const deletePosition = async (id) => {
 
 
 //シフトの追加
-document.getElementById("btn-save-shift").addEventListener("click",async () => {
+document.getElementById("btn-save-shift").addEventListener("click", async () => {
     const year = document.getElementById("sel-year").value;
     const month = document.getElementById("sel-month").value;
     const day = document.getElementById("sel-day").value;
@@ -138,4 +138,50 @@ document.getElementById("btn-save-shift").addEventListener("click",async () => {
     }
 });
 
-
+//シフトの取得
+export const MYshift = async (UserName) => {
+    const MyShiftLIst = document.getElementById("myshift-list");
+    MyShiftLIst.textContent = "";
+    try {
+        const bbb = await getDocs(query(collection(db, "shifts"), where("employeeName", "==", UserName)));
+        if (bbb.empty) {
+            MyShiftLIst.innerHTML = "<p style='color: #666; text-align: center;'>現在確定しているシフトはありません</p>";
+            return;
+        }
+        //日付順に並べ替える
+        const shiftsArray = [];
+        bbb.forEach((shift) => {
+            shiftsArray.push(shift.data());
+        });
+        shiftsArray.sort((a, b) => {
+            // parseInt() を使って「2024年」や「1月」という文字から数字だけを抽出する
+            const yearA = parseInt(a.year);
+            const monthA = parseInt(a.month);
+            const dayA = parseInt(a.day);
+            const yearB = parseInt(b.year);
+            const monthB = parseInt(b.month);
+            const dayB = parseInt(b.day);
+            // ① まず「年」を比べる（違ったらここで並べ替え完了）
+            if (yearA !== yearB) {
+                return yearA - yearB;
+            }
+            // ② 年が同じなら「月」を比べる
+            if (monthA !== monthB) {
+                return monthA - monthB;
+            }
+            // ③ 年も月も同じなら「日」で比べる
+            return dayA - dayB;
+        });
+        shiftsArray.forEach((MYshiftData) => {
+            const div3 = document.createElement("div");
+            div3.innerHTML = `
+            <span class="msd-m">${MYshiftData.month}/${MYshiftData.day}</span>
+           <span class="msd-t">${MYshiftData.startTime}~${MYshiftData.endTime}</span>`;
+            MyShiftLIst.appendChild(div3);
+        })
+        return shiftsArray;
+    } catch (error) {
+        console.error("シフト読み込みエラー:", error);
+        return [];
+    }
+};

@@ -1,5 +1,5 @@
 import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, doc, setDoc, collection, getDocs, getDoc } from "./firebase.js";
-import { loadEmployeeList } from "./db.js";
+import { loadEmployeeList, MYshift, } from "./db.js";
 
 //ログイン機能
 document.getElementById("btn-login").addEventListener("click", async () => {
@@ -39,6 +39,7 @@ onAuthStateChanged(auth, async (user) => {
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
             const userData = userDocSnap.data();
+            const UserName = userData.name;
             const tabAdmin = document.getElementById("tab-admin");
             if (userData.role === "管理者") {
                 tabAdmin.classList.remove("hidden");
@@ -46,7 +47,10 @@ onAuthStateChanged(auth, async (user) => {
                 tabAdmin.classList.add("hidden");
             }
             //ログイン名を表示
-            document.getElementById("user-name").textContent = userData.name;
+            document.getElementById("user-name").textContent = UserName;
+            currentUserName = UserName;
+            myGlobalShifts = await MYshift(currentUserName);
+            renderCalendar(currentYear, currentMonth, myGlobalShifts);
         } catch (error) {
             console.error("権限チェックエラー:", error);
         }
@@ -134,43 +138,60 @@ document.getElementById('close-btn2').addEventListener('click', () => {
 });
 
 //カレンダーの描画
-const renderCalendar = (year, month) => {
+const renderCalendar = (year, month, shiftList = []) => {
     const Calendargrid = document.getElementById("calendar-grid");
     Calendargrid.innerHTML = "";
-    // ① その月の1日が何曜日かを取得 (0:日, 1:月, 2:火...)
+
+    // その月の1日が何曜日かを取得
     const firstDay = new Date(year, month - 1, 1).getDay();
-    // ② その月が何日まであるかを取得 (次の月の0日目＝今月の最終日)
+    // その月が何日まであるかを取得
     const lastDate = new Date(year, month, 0).getDate();
-    // ③ 1日が始まる曜日まで、空のマスを作る
+
+    // 1日が始まる曜日まで、空のマスを作る
     for (let i = 0; i < firstDay; i++) {
         const emptyCell = document.createElement("div");
         Calendargrid.appendChild(emptyCell);
     }
-    // ④ 1日から最終日までのマスを作る
+
+    // 1日から最終日までのマスを作る
     for (let day = 1; day <= lastDate; day++) {
         const dayCell = document.createElement("div");
         dayCell.className = "day-cell";
         dayCell.textContent = day;
-        /*【応用】もしこの日にシフトが入っていれば、緑の点を追加する
-        if (day === 9 || day === 10) { 
-          const dot = document.createElement("div");
-          dot.className = "shift-dot";
-          dayCell.appendChild(dot);
-          
-          // 9日なら青枠にする
-          if (day === 9) dayCell.classList.add("selected"); 
-        }*/
+
+        // 受け取った配列の中に、作ろうとしているマスと一致する日付があるかチェック！
+        const hasShift = shiftList.some((shift) => {
+            // 文字列を数値にして比較する
+            return parseInt(shift.year) === year &&
+                parseInt(shift.month) === month &&
+                parseInt(shift.day) === day;
+        });
+
+        if (hasShift) {
+            // 一致したら緑の点をつける
+            const dot = document.createElement("div");
+            dot.className = "shift-dot";
+            dayCell.appendChild(dot);
+            // 日付のマス全体を青枠にする
+            dayCell.classList.add("selected");
+        }
+
+        // クリックしたときの動き
         dayCell.addEventListener("click", () => {
             console.log(`${month}月${day}日がクリックされました`);
         });
+
         Calendargrid.appendChild(dayCell);
     }
 };
+
+let currentUserName = "";
+let myGlobalShifts = [];
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth() + 1;
 const monthYearText = document.getElementById("month-year");
 monthYearText.textContent = `${currentYear}年 ${currentMonth}月`;
-renderCalendar(currentYear, currentMonth);
+renderCalendar(currentYear, currentMonth, myGlobalShifts);
 document.getElementById("prev-month").addEventListener("click", () => {
     currentMonth--;
     if (currentMonth < 1) {
@@ -178,7 +199,7 @@ document.getElementById("prev-month").addEventListener("click", () => {
         currentYear--;
     }
     monthYearText.textContent = `${currentYear}年 ${currentMonth}月`;
-    renderCalendar(currentYear, currentMonth);
+    renderCalendar(currentYear, currentMonth, myGlobalShifts);
 });
 document.getElementById("next-month").addEventListener("click", () => {
     currentMonth++;
@@ -187,9 +208,8 @@ document.getElementById("next-month").addEventListener("click", () => {
         currentYear++;
     }
     monthYearText.textContent = `${currentYear}年 ${currentMonth}月`;
-    renderCalendar(currentYear, currentMonth);
+    renderCalendar(currentYear, currentMonth, myGlobalShifts);
 });
-
 
 
 
