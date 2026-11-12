@@ -129,6 +129,29 @@
 
                     <div class="view-area">
                         <table class="shift-grid" id="shift-grid-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">名前</th>
+                                    <th>6:00</th>
+                                    <th>7:00</th>
+                                    <th>8:00</th>
+                                    <th>9:00</th>
+                                    <th>10:00</th>
+                                    <th>11:00</th>
+                                    <th>12:00</th>
+                                    <th>13:00</th>
+                                    <th>14:00</th>
+                                    <th>15:00</th>
+                                    <th>16:00</th>
+                                    <th>17:00</th>
+                                    <th>18:00</th>
+                                    <th>19:00</th>
+                                    <th>20:00</th>
+                                    <th>21:00</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shift-grid-body">
+                            </tbody>
                         </table>
                     </div>
 
@@ -138,12 +161,82 @@
                         <select id="shift-select" class="shift-select">
                         </select>
                         <div class="time-range">
-                            <input type="time" id="start-time" class="time-input" placeholder="開始時間">
-                            <input type="time" id="end-time" class="time-input" placeholder="終了時間">
+                            <div class="time-range">
+                                <select id="start-time" class="time-input">
+                                    <option value="">開始時間</option>
+                                    <option value="06:00">06:00</option>
+                                    <option value="06:30">06:30</option>
+                                    <option value="07:00">07:00</option>
+                                    <option value="07:30">07:30</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="08:30">08:30</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="09:30">09:30</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="10:30">10:30</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="11:30">11:30</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="12:30">12:30</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="13:30">13:30</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="14:30">14:30</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="15:30">15:30</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="16:30">16:30</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="17:30">17:30</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="18:30">18:30</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="19:30">19:30</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="20:30">20:30</option>
+                                    <option value="21:00">21:00</option>
+                                </select>
+                                <span style="font-weight: bold; padding: 0 5px;">〜</span>
+                                <select id="end-time" class="time-input">
+                                    <option value="">終了時間</option>
+                                    <option value="06:00">06:00</option>
+                                    <option value="06:30">06:30</option>
+                                    <option value="07:00">07:00</option>
+                                    <option value="07:30">07:30</option>
+                                    <option value="08:00">08:00</option>
+                                    <option value="08:30">08:30</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="09:30">09:30</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="10:30">10:30</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="11:30">11:30</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="12:30">12:30</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="13:30">13:30</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="14:30">14:30</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="15:30">15:30</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="16:30">16:30</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="17:30">17:30</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="18:30">18:30</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="19:30">19:30</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="20:30">20:30</option>
+                                    <option value="21:00">21:00</option>
+                                </select>
+                            </div>
                         </div>
                         <button id="btn-save-shift" class="btn-save">保存</button>
                     </div>
                 </div>
+
                 <div class="edit-btns" id="edit-btns">
                     <button class="emp-edit" id="emp-edit">従業員を編集</button>
                     <button class="position-edit" id="position-edit">ポジションを編集</button>
@@ -176,6 +269,45 @@
                 </div>
             </div>
 
+        </div>
+
+        <div id="shift-popup" class="popup-overlay hidden">
+            <div class="popup-content">
+                <div class="popup-header">
+                    <h3 id="popup-date-title"></h3>
+                    <button id="close-popup-btn" class="popup-close-btn">×</button>
+                </div>
+                <div class="popup-body">
+                    <div class="view-area">
+                        <table class="shift-grid" id="shift-grid-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-name">名前</th>
+                                    <th>6:00</th>
+                                    <th>7:00</th>
+                                    <th>8:00</th>
+                                    <th>9:00</th>
+                                    <th>10:00</th>
+                                    <th>11:00</th>
+                                    <th>12:00</th>
+                                    <th>13:00</th>
+                                    <th>14:00</th>
+                                    <th>15:00</th>
+                                    <th>16:00</th>
+                                    <th>17:00</th>
+                                    <th>18:00</th>
+                                    <th>19:00</th>
+                                    <th>20:00</th>
+                                    <th>21:00</th>
+                                </tr>
+                            </thead>
+                            <tbody id="popup-shift-grid-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
 
