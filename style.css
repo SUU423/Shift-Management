@@ -98,6 +98,42 @@ body {
     font-weight: bold;
 }
 
+/*カレンダー*/
+.calendar-grid, .weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); 
+  gap: 8px; 
+  padding: 10px;
+  background-color: #f5f6f8; 
+  width: 90%;
+  text-align: center;
+}
+
+.day-cell {
+  background-color: white;
+  border-radius: 8px; 
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.day-cell.selected {
+  border: 2px solid #007bff;
+  color: #007bff;
+}
+
+/* シフトが入っている印（画像[cite: 21]の緑の点） 
+.shift-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #00d28a;
+  border-radius: 50%;
+  margin-top: 4px;
+}*/
+
 
 /* 管理者設定画面 */
 .admin-view {
@@ -166,6 +202,25 @@ body {
     cursor: pointer;
 }
 
+.edit-btns {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.emp-edit,
+.position-edit {
+    background-color: #ffffff;
+    color: #555555;
+    border: 1px solid #cccccc;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .add-emp-row {
     display: flex;
     gap: 10px;
@@ -181,7 +236,7 @@ body {
     border-radius: 5px;
 }
 
-.new-emp-name,
+*/ .new-emp-name,
 .new-emp-id,
 .new-emp-password {
     padding: 10px;
@@ -192,31 +247,195 @@ body {
 
 
 #emp-list {
-  list-style: none; 
-  padding: 0;
-  margin-top: 15px;
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
 }
 
 #emp-list li {
-  display: flex;       
-  align-items: center;  
-  padding: 10px;
-  border-bottom: 1px solid #ddd; 
-  font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.btn-delete-emp {
+    background-color: transparent;
+    color: #f16555;
+    border: 1px solid #f16555;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
 }
 
 .emp-name {
-  font-weight: bold;
-  width: 120px; 
+    font-weight: bold;
+    width: 120px;
 }
 
 .emp-id {
-  width: 150px;
-  color: #555;
+    width: 150px;
+    color: #555;
 }
 
 .emp-pass {
-  color: #888;
+    color: #888;
+}
+
+.emp-manage-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px;
+    z-index: 1000;
+}
+
+.emp-manage-card .card-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.add-emp-row input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+
+.btn-add-emp {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.position-manage-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1000;
+}
+
+.position-manage-card .card-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.position-manage-card .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: transparent;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #888;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.add-position {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.position-name {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+
+.position-color {
+    width: 60px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-add-position {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.show-position {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.position-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-delete-pos {
+    background-color: transparent;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.color-box {
+    width: 5px;
 }
 
 
