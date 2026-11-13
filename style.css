@@ -591,3 +591,85 @@ body {
     gap: 5px;
     cursor: pointer;
 }
+
+
+/* === 📱 スマホ用レスポンシブデザイン（画面幅768px以下で発動） === */
+@media screen and (max-width: 768px) {
+
+    /* 1. シフト表の横スクロール領域を設定 */
+    .view-area,
+    .popup-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        /* スマホで滑らかにスクロールさせる魔法 */
+        padding-bottom: 10px;
+    }
+
+    /* 2. 表全体の幅を固定（JSのピクセル計算を狂わせないための超重要設定） */
+    .shift-grid {
+        min-width: 900px;
+        /* 画面が狭くても表の幅を死守する */
+    }
+
+    /* 3. 名前列を左端にピタッと固定（スクロールしても追従） */
+    .shift-grid th.col-name,
+    .shift-grid td.col-name {
+        position: sticky;
+        left: 0;
+        background-color: #fff;
+        /* 背景色がないとスクロール時に文字が重なって透ける */
+        z-index: 5;
+        /* シフトのバー（z-index未指定）よりも上に重ねる */
+        border-right: 2px solid #ddd;
+        /* 固定境界線を強調 */
+    }
+
+    /* 見出しの名前列はさらに上に重ねる */
+    .shift-grid thead th.col-name {
+        z-index: 6;
+        background-color: #f8f9fa;
+    }
+
+    /* 4. カレンダーのマス目調整 */
+    .calendar-grid {
+        gap: 2px;
+        /* 隙間を狭く */
+    }
+
+    .day-cell {
+        padding: 10px 5px;
+        font-size: 14px;
+        min-height: 60px;
+        /* タップしやすい高さを確保 */
+    }
+
+    /* 5. ポップアップ（モーダル）をスマホ画面いっぱいに広げる */
+    .popup-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        /* 全画面なので角の丸みを消す */
+    }
+
+    .popup-header {
+        padding: 10px 15px;
+    }
+
+    /* 6. 管理者タブの入力フォームを縦並びにしてタップしやすくする */
+    .admin-controls {
+        display: flex;
+        flex-direction: column;
+        /* 横並びから縦並びに変更 */
+        gap: 10px;
+    }
+
+    /* iOS(iPhone)対策：入力時に画面が勝手にズームされるのを防ぐ */
+    input,
+    select,
+    button {
+        font-size: 16px !important;
+        padding: 12px 8px;
+        /* 指でタップしやすいように高さを出す */
+    }
+}
