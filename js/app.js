@@ -197,6 +197,7 @@ const renderCalendar = (year, month, shiftList = []) => {
             }
             document.getElementById("popup-date-title").textContent = `${year}年 ${month}月 ${day}日の全体シフト`;
             document.getElementById("shift-popup").classList.remove("hidden");
+             document.getElementById("btn-nav").classList.add("hidden");
         });
 
         Calendargrid.appendChild(dayCell);
@@ -206,6 +207,7 @@ const renderCalendar = (year, month, shiftList = []) => {
 //ポップアップを閉じる
 document.getElementById("close-popup-btn").addEventListener("click", () => {
     document.getElementById("shift-popup").classList.add("hidden");
+    document.getElementById("btn-nav").classList.remove("hidden");
 });
 
 //?
@@ -242,7 +244,7 @@ document.getElementById("next-month").addEventListener("click", () => {
 
 //全体シフト表示
 // タイムラインの基準（一番左端）の時間を「9時」とする
-const TIMELINE_START_HOUR = 6;
+const TIMELINE_START_HOUR = 5.6;
 // 1分を何ピクセルで表現するか（例: 2なら、1時間＝120px幅になる）
 const PIXELS_PER_MINUTE = 1;
 
