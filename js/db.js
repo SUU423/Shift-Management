@@ -1,5 +1,5 @@
 import { db, doc, setDoc, collection, getDocs, deleteDoc, addDoc, query, where } from "./firebase.js";
-import{renderAllShiftTimeline} from "./app.js";
+import { updateAdminTimeline } from "./app.js";
 
 //従業員情報を取得
 export const loadEmployeeList = async () => {
@@ -133,7 +133,9 @@ document.getElementById("btn-save-shift").addEventListener("click", async () => 
     try {
         await addDoc(collection(db, "shifts"), shiftData);
         alert("シフトを保存しました！");
-        renderAllShiftTimeline();
+        if (typeof updateAdminTimeline === "function") {
+            updateAdminTimeline();
+        }
     } catch (error) {
         console.error("シフト保存エラー:", error);
         alert("保存に失敗しました");
@@ -178,7 +180,7 @@ export const MYshift = async (UserName) => {
             const div3 = document.createElement("div");
             div3.innerHTML = `
             <span class="msd-m">${MYshiftData.month}/${MYshiftData.day}</span>
-           <span class="msd-t">${MYshiftData.startTime}~${MYshiftData.endTime}</span>`;
+           <span class="msd-t">${MYshiftData.position}&nbsp;${MYshiftData.startTime}~${MYshiftData.endTime} </span>`;
             MyShiftLIst.appendChild(div3);
         })
         return shiftsArray;

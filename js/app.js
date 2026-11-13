@@ -1,4 +1,4 @@
-import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, doc, setDoc, collection, getDocs, getDoc } from "./firebase.js";
+import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, doc, setDoc, collection, getDocs, getDoc, deleteDoc } from "./firebase.js";
 import { loadEmployeeList, MYshift, } from "./db.js";
 
 
@@ -193,7 +193,7 @@ const renderCalendar = (year, month, shiftList = []) => {
         // カレンダークリック時の動作
         dayCell.addEventListener("click", () => {
             if (typeof renderAllShiftTimeline === "function") {
-                renderAllShiftTimeline(year, month, day, "popup-shift-grid-body"); 
+                renderAllShiftTimeline(year, month, day, "popup-shift-grid-body");
             }
             document.getElementById("popup-date-title").textContent = `${year}年 ${month}月 ${day}日の全体シフト`;
             document.getElementById("shift-popup").classList.remove("hidden");
@@ -208,10 +208,11 @@ document.getElementById("close-popup-btn").addEventListener("click", () => {
     document.getElementById("shift-popup").classList.add("hidden");
 });
 
+//?
 let currentUserName = "";
 let myGlobalShifts = [];
 
-//現在の日付を表示＆カレンダー関数の実行
+//現在の日付を表示＆カレンダー描画関数の実行
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth() + 1;
 const monthYearText = document.getElementById("month-year");
@@ -244,15 +245,18 @@ document.getElementById("next-month").addEventListener("click", () => {
 const TIMELINE_START_HOUR = 6;
 // 1分を何ピクセルで表現するか（例: 2なら、1時間＝120px幅になる）
 const PIXELS_PER_MINUTE = 1;
-// ① "09:30" を "9" と "30" の数字に分ける
+
+//シフト時間を描画するための計算
 const calcShiftBar = (startTime, endTime) => {
+    // 09:30を9と30の数字に分ける
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
-    // ② すべて「分」に統一して計算
+    // すべて分に統一する
     const startTotalMins = (startH * 60) + startM;
     const endTotalMins = (endH * 60) + endM;
     const timelineStartMins = TIMELINE_START_HOUR * 60; // 9:00 = 540分
-    // ③ ピクセル数に変換！
+
+    // ピクセル数に変換
     // 左からの位置 ＝ (シフト開始時間 － タイムライン開始時間) × 1分あたりのpx
     const leftPx = (startTotalMins - timelineStartMins) * PIXELS_PER_MINUTE;
     // バーの長さ ＝ (終了時間 － 開始時間) × 1分あたりのpx
@@ -261,16 +265,15 @@ const calcShiftBar = (startTime, endTime) => {
     return { left: leftPx, width: widthPx };
 };
 
-//シフト表を作成
+
 const selYear = document.getElementById("sel-year");
 const selMonth = document.getElementById("sel-month");
 const selDay = document.getElementById("sel-day");
 
 
+//シフト表の作成
 export const renderAllShiftTimeline = async (targetYear, targetMonth, targetDay, tbodyId) => {
-    // 渡されたID（管理者用 or ポップアップ用）のテーブル本体を取得
     const tbody = document.getElementById(tbodyId);
-
     tbody.innerHTML = "<tr><td colspan='17' style='text-align: center;'>読み込み中...</td></tr>";
     //シフトデータを取得
     try {
@@ -282,60 +285,108 @@ export const renderAllShiftTimeline = async (targetYear, targetMonth, targetDay,
             //  positionColors["部品"] = "#348002"; を作成
             positionColors[data.PositionName] = data.PositionColor;
         });
+        //シフトを一時すべて取得し配列に入れる
         const querySnapshot = await getDocs(collection(db, "shifts"));
         const shiftsOfDay = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            //  選んだ日付と一致するシフトだけを集める。Firestore側のデータも数値に変換して比較する
+            //  選んだ日付と一致するシフトだけを配列に入れる。Firestore側のデータも数値に変換して比較する
             if (parseInt(data.year) === targetYear &&
                 parseInt(data.month) === targetMonth &&
                 parseInt(data.day) === targetDay) {
-                shiftsOfDay.push(data);
+                shiftsOfDay.push({ id: doc.id, ...data });
             }
         });
         tbody.innerHTML = "";
+
         //該当するシフトが無かった時の代替メッセージ
         if (shiftsOfDay.length === 0) {
             tbody.innerHTML = "<tr><td colspan='17' style='text-align: center; color: #666;'>この日のシフトはありません</td></tr>";
             return;
         }
+
+        const shiftsByEmployee = {};
         // シフトの数だけ行（tr）を作る
         shiftsOfDay.forEach((shift) => {
+            const name = shift.employeeName;
+            // まだその人の配列が無ければ、空の配列を作る
+            if (!shiftsByEmployee[name]) {
+                shiftsByEmployee[name] = [];
+            }
+            // その人の配列にシフトを追加していく
+            shiftsByEmployee[name].push(shift);
+        });
+
+        //まとめた人ごとの配列をループして、1人につき1行（tr）だけ作る
+        Object.keys(shiftsByEmployee).forEach((employeeName) => {
+            // その人のシフトを全部出す
+            const personShifts = shiftsByEmployee[employeeName];
+            //HTMLの作成
             const tr = document.createElement("tr");
-            // 一番左に名前のマスを作る
             const nameTd = document.createElement("td");
             nameTd.className = "col-name";
-            nameTd.textContent = shift.employeeName;
+            nameTd.textContent = employeeName;
             tr.appendChild(nameTd);
-            // 2. 「6:00」のマスを作る（バーを配置する基準点）
+
+            // 6:00のマスを作る（すべてのバーを配置する基準点）
             const startTd = document.createElement("td");
             startTd.className = "col-start";
-            const barStyle = calcShiftBar(shift.startTime, shift.endTime);
-            const bar = document.createElement("div");
-            bar.className = "shift-bar";
-            bar.style.left = `${barStyle.left}px`;
-            bar.style.width = `${barStyle.width}px`;
-            bar.textContent = shift.position;
-            // ポジションごとの色分け。見つからなければグレー
-            bar.style.backgroundColor = positionColors[shift.position] || "#95a5a6";
-            startTd.appendChild(bar);
+
+            // その人のシフトの数だけループして、同じstartTdの中にバーをどんどん追加する
+            personShifts.forEach((shift) => {
+
+                //時間が未設定のシフトは弾く
+                if (!shift.startTime || !shift.endTime) {
+                    console.warn("時間が未設定のシフトデータをスキップしました:", shift);
+                    return; // 描画処理をスキップして次のシフトへ
+                }
+                const barStyle = calcShiftBar(shift.startTime, shift.endTime);
+                const bar = document.createElement("div");
+                bar.className = "shift-bar";
+                bar.style.left = `${barStyle.left}px`;
+                bar.style.width = `${barStyle.width}px`;
+                bar.textContent = shift.position;
+                // ポジションごとの色分け
+                bar.style.backgroundColor = positionColors[shift.position] || "#95a5a6";
+
+                //シフト削除用のイベントリスナー
+                bar.addEventListener("click", async () => {
+                    const isDelete = window.confirm(`${employeeName}さんの ${shift.startTime}〜${shift.endTime} のシフトを削除しますか？`);
+                    if (isDelete) {
+                        try {
+                            await deleteDoc(doc(db, "shifts", shift.id));
+                            renderAllShiftTimeline(targetYear, targetMonth, targetDay, tbodyId);
+                        } catch (error) {
+                            console.error("削除エラー:", error);
+                            alert("削除に失敗しました。");
+                        }
+                    }
+                });
+
+                // 完成したバーをマスの中に追加
+                startTd.appendChild(bar);
+            });
+
+            // バーが全部入ったマスを行に追加
             tr.appendChild(startTd);
-            // 残りの 7:00〜21:00 までの空マス（15個分）を作る
+
+            // 残りの 7:00〜21:00 までの空マスを作る
             for (let i = 0; i < 15; i++) {
                 const emptyTd = document.createElement("td");
                 tr.appendChild(emptyTd);
             }
+
+            // 1人分の完成した行をテーブルに追加
             tbody.appendChild(tr);
         });
-
     } catch (error) {
         console.error("全体シフト取得エラー:", error);
         tbody.innerHTML = "<tr><td colspan='17' style='text-align: center; color: red;'>エラーが発生しました</td></tr>";
     }
 };
 
-// === 管理者タブ用の呼び出し処理 ===
-const updateAdminTimeline = () => {
+// 管理者タブ用の呼び出し処理
+export const updateAdminTimeline = () => {
     const valYear = selYear.value;
     const valMonth = selMonth.value;
     const valDay = selDay.value;
