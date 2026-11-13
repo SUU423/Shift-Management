@@ -600,6 +600,7 @@ body {
     .view-area,
     .popup-body {
         overflow-x: auto;
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         /* スマホで滑らかにスクロールさせる魔法 */
         padding-bottom: 10px;
