@@ -673,4 +673,39 @@ body {
         padding: 12px 8px;
         /* 指でタップしやすいように高さを出す */
     }
+
+    /* === style.css：先ほどのスマホ用設定（@media...）の中に追記 === */
+
+    /* 1. タイトル「シフト管理サイト」のサイズを縮小 */
+    h1 {
+        font-size: 22px !important;
+    }
+
+    /* 2. 「マイシフト」などの見出しをスマホサイズに */
+    h2 {
+        font-size: 18px !important;
+        margin-top: 15px;
+        margin-bottom: 10px;
+    }
+
+    /* 3. シフト詳細（日付や「盛合生産 13:00〜17:30」）の文字サイズを整える */
+    /* （※前回作った msd-t クラスや、周辺のテキストに効かせます） */
+    .msd-t,
+    p,
+    span {
+        font-size: 15px !important;
+        line-height: 1.4;
+    }
+
+    /* 4. 画面左右の余白をスマホ用に少し狭める */
+    .container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* 5. 右上のログアウトボタン（滝口さんの横）の調整 */
+    .logout-btn {
+        font-size: 14px !important;
+        padding: 5px 8px !important;
+    }
 }
