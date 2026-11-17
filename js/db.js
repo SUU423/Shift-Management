@@ -197,8 +197,8 @@ export const MYshift = async (UserName) => {
         });
         if (shownCount === 0) {
             MyShiftLIst.innerHTML = "<p style='color: #666; text-align: center;'>現在確定しているシフトはありません</p>";
-            return shiftsArray;
         }
+        return shiftsArray;
     } catch (error) {
         console.error("シフト読み込みエラー:", error);
         return [];
