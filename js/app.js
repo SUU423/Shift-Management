@@ -2,6 +2,12 @@ import { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, o
 import { loadEmployeeList, MYshift, } from "./db.js";
 
 
+//
+let currentUserName = "";
+let currentUserRole = "";
+let myGlobalShifts = [];
+
+
 //ログイン機能
 document.getElementById("btn-login").addEventListener("click", async () => {
     const loginId = document.getElementById("login-id").value;
@@ -33,6 +39,7 @@ const allshiftView = document.getElementById("allshift-view");
 const adminView = document.getElementById("admin-view");
 const btnNav = document.getElementById('btn-nav');
 //ログイン状態の監視
+
 onAuthStateChanged(auth, async (user) => {
     //HTMLの表示切替
     if (user) {
@@ -48,6 +55,7 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDocSnap.data();
             const UserName = userData.name;
             const tabAdmin = document.getElementById("tab-admin");
+            currentUserRole = userData.role;
             if (userData.role === "管理者") {
                 tabAdmin.classList.remove("hidden");
             } else {
@@ -197,7 +205,7 @@ const renderCalendar = (year, month, shiftList = []) => {
             }
             document.getElementById("popup-date-title").textContent = `${year}年 ${month}月 ${day}日の全体シフト`;
             document.getElementById("shift-popup").classList.remove("hidden");
-             document.getElementById("btn-nav").classList.add("hidden");
+            document.getElementById("btn-nav").classList.add("hidden");
         });
 
         Calendargrid.appendChild(dayCell);
@@ -209,10 +217,6 @@ document.getElementById("close-popup-btn").addEventListener("click", () => {
     document.getElementById("shift-popup").classList.add("hidden");
     document.getElementById("btn-nav").classList.remove("hidden");
 });
-
-//?
-let currentUserName = "";
-let myGlobalShifts = [];
 
 //現在の日付を表示＆カレンダー描画関数の実行
 let currentYear = new Date().getFullYear();
@@ -353,6 +357,10 @@ export const renderAllShiftTimeline = async (targetYear, targetMonth, targetDay,
 
                 //シフト削除用のイベントリスナー
                 bar.addEventListener("click", async () => {
+                    if (currentUserRole !== "管理者") {
+                        alert("シフトの削除は管理者のみ可能です");
+                        return;
+                    }
                     const isDelete = window.confirm(`${employeeName}さんの ${shift.startTime}〜${shift.endTime} のシフトを削除しますか？`);
                     if (isDelete) {
                         try {
