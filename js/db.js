@@ -175,14 +175,30 @@ export const MYshift = async (UserName) => {
             // ③ 年も月も同じなら「日」で比べる
             return dayA - dayB;
         });
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let shownCount = 0;
+        //並べ替えたデータを一つずつ処理
         shiftsArray.forEach((MYshiftData) => {
+            //今日を
+            const shiftDate = new Date(
+                parseInt(MYshiftData.year),
+                parseInt(MYshiftData.month) - 1,
+                parseInt(MYshiftData.day)
+            );
+            if (shiftDate < today) return; // 過去のシフトは描画しない
+            shownCount++;
             const div3 = document.createElement("div");
             div3.innerHTML = `
             <span class="msd-m">${MYshiftData.month}/${MYshiftData.day}</span>
            <span class="msd-t">${MYshiftData.position}&nbsp;${MYshiftData.startTime}~${MYshiftData.endTime} </span>`;
             MyShiftLIst.appendChild(div3);
-        })
-        return shiftsArray;
+        });
+        if (shownCount === 0) {
+            MyShiftLIst.innerHTML = "<p style='color: #666; text-align: center;'>現在確定しているシフトはありません</p>";
+            return shiftsArray;
+        }
     } catch (error) {
         console.error("シフト読み込みエラー:", error);
         return [];
