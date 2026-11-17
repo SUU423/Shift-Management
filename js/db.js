@@ -15,7 +15,6 @@ export const loadEmployeeList = async () => {
             li.innerHTML = `
                    <span class="emp-name">【${data.name}】</span>
                    <span class="emp-id">ID: ${data.employeeId}</span>
-                   <span class="emp-pass">パスワード: ${data.password}</span> 
                    <button class="btn-delete-emp" id="${doc.id}"><i class="fa-solid fa-trash"></i></button>`;
             const deleteBtn = li.querySelector('.btn-delete-emp');
             deleteBtn.addEventListener('click', () => {
